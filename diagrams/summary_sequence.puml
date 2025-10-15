@@ -1,0 +1,30 @@
+@startuml SummarySequence
+
+title Sequence: GET /summary/{user_id}
+
+actor Client
+participant Router
+participant Service
+participant Repository
+database Database
+
+Client -> Router: GET /summary/123?start_date=...&end_date=...
+activate Router
+
+Router -> Service: get_user_summary(user_id, dates)
+activate Service
+
+Service -> Repository: fetch_summary_stats(user_id, dates)
+activate Repository
+
+Repository -> Database: SELECT MAX(...), MIN(...), MEAN(...) FROM transactions WHERE ...
+Repository <-- Database: Return summary results
+deactivate Repository
+
+Service --> Router: Return summary data
+deactivate Service
+
+Router --> Client: HTTP 200 OK with JSON body
+deactivate Router
+
+@enduml

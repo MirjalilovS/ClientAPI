@@ -1,0 +1,20 @@
+@startuml ComponentDiagram
+
+title E-commerce API - Component Architecture
+
+actor Client
+
+package "FastAPI Application" {
+  component [Router Layer] as Router
+  component [Service Layer] as Service
+  component [Repo. Layer] as Repo
+}
+
+database "SQLite Database" as DB
+
+Client -right-> Router : Makes HTTP API Calls
+Router ..down.> Service : Calls Business Logic
+Service ..down.> Repo : Uses Repository for Data Access
+Repo .right.> DB : Reads/Writes Data
+
+@enduml

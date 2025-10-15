@@ -1,0 +1,34 @@
+@startuml UploadSequence
+
+title Sequence: POST /upload
+
+actor Client
+participant Router
+participant Service
+participant Repository
+database Database
+
+Client -> Router: POST /upload with CSV file
+activate Router
+
+Router -> Service: process_uploaded_file(file_stream)
+activate Service
+
+' The service layer processes the file row-by-row
+loop for each transaction in file
+    Service -> Repository: save_transaction(transaction_data)
+    activate Repository
+
+    ' The repository layer performs the database insertion
+    Repository -> Database: INSERT INTO transactions (...)
+    Repository <-- Database: Success
+    deactivate Repository
+end
+
+Service --> Router: Return success message
+deactivate Service
+
+Router --> Client: HTTP 201 Created
+deactivate Router
+
+@enduml
