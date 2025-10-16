@@ -19,7 +19,7 @@ class UploadData(SQLModel, table=True):
 class SummaryData(BaseModel):
     user_id: int
     total_amount: Decimal
-    average_amount: Decimal
+    max_amount: Decimal
+    min_amount: Decimal
+    mean_amount: Decimal
     transaction_count: int
-    start_date: datetime = Field(default=None)
-    end_date: datetime = Field(default=None)

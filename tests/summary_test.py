@@ -1,7 +1,7 @@
 import os
 import pytest
 from fastapi.testclient import TestClient
-from sqlmodel import Session, SQLModel, create_engine
+from sqlmodel import Session, SQLModel, create_engine, select
 
 from api.main import app
 from api.database import get_session
@@ -46,7 +46,6 @@ def client_fixture(session: Session):
 
 def test_summary_uid_only(client: TestClient, session: Session):
     # placeholder request, will be updated later
-    # Arrange: Set up the Database to add data
 
     test_data = [
         {
@@ -126,8 +125,13 @@ def test_summary_uid_only(client: TestClient, session: Session):
         session.add(transaction)
     session.commit()
 
-    response = client.get("/summary/479")
+    statement = select(UploadData).where(UploadData.user_id == 479)
+    results = session.exec(statement).all()
+    print(f"SANITY CHECK: Found {len(results)} records for user 479 in the test DB.")
+    assert len(results) > 0
 
+    response = client.get("/summary/479")
+    print(response.json())
     assert response.status_code == 200
     data = response.json()
 

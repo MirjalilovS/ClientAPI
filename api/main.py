@@ -1,11 +1,12 @@
-from typing import Union
+from typing import Union, Annotated
 from . import models
-from .models import UploadData
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from datetime import date, datetime
+from .models import UploadData, SummaryData
+from fastapi import FastAPI, UploadFile, File, HTTPException, Query
 from .database import SessionDep, create_db_and_tables
 from contextlib import asynccontextmanager
 from . import logic
-from .logic import process_csv
+from .logic import process_csv, calc_summary_stats
 import traceback
 
 # this module is the router module
@@ -22,13 +23,26 @@ async def lifespan(app: FastAPI):
 
 # finish with this one, response model is temporary
 @app.get(
-    "/summary/{user_id}?start_date={start_date}&end_date={end_date}",
-    response_model=UploadData,
+    "/summary/{user_id}",
+    response_model=SummaryData,
     status_code=200,
 )
-async def summarise_data():
+async def summarise_data(
+    db: SessionDep,
+    user_id: int,
+    start_date: Annotated[date | None, Query()] = None,
+    end_date: Annotated[date | None, Query()] = None,
+):
     try:
-        return {"message": "Successfully summarised data."}
+        summary = calc_summary_stats(
+            db=db, user_id=user_id, start_date=start_date, end_date=end_date
+        )
+        if not summary:
+            raise HTTPException(
+                status_code=404,
+                detail="No transactions found for the given user and date range.",
+            )
+        return summary
     # this exception will need improvement
     except Exception as e:
         print("---Detailed error traceback---")

@@ -11,7 +11,7 @@ TEST_DATABASE_URL = "sqlite:///./test.db"
 engine = create_engine(
     TEST_DATABASE_URL,
     connect_args={"check_same_thread": False},
-    echo=True,  # echo=True is great for debugging
+    echo=True,
 )
 
 
