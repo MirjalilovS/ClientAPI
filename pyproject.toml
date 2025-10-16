@@ -12,7 +12,10 @@ dependencies = [
     "uvicorn",
     "sqlmodel",
     "faker",
-    "Pydantic"
+    "Pydantic",
+    "pytest",
+    "httpx",
+    "python-multipart"
 ]
 
 [dependency-groups]

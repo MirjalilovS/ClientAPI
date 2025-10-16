@@ -4,7 +4,7 @@ from pathlib import Path
 
 from faker import Faker
 
-TRANSACTIONS = 1_000_000
+TRANSACTIONS = 10
 HEADERS = ["transaction_id", "user_id", "product_id", "timestamp", "transaction_amount"]
 
 # Initialize Faker
