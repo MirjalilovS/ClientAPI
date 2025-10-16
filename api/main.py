@@ -1,9 +1,18 @@
 from typing import Union
 from models import UploadData
 from fastapi import FastAPI
+from database import create_db_and_tables
+from contextlib import asynccontextmanager
 
 # this module is the router module
 app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    print("INFO:     Creating database and tables...")
+    create_db_and_tables()
+    yield
+    print("INFO:     Application shutting down.")
 
 
 # finish with this one

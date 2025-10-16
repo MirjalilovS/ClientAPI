@@ -1,28 +1,12 @@
 from fastapi import FastAPI
-from pydantic import BaseModel
 from uuid import UUID
 from datetime import datetime
 from decimal import Decimal
-from sqlalchemy import Column, Integer, String, Numeric, DateTime
-from sqlalchemy.orm import declarative_base
+from sqlmodel import Column, Integer, String, Numeric, DateTime, SQLModel
+from pydantic import BaseModel
 
-# making upload endpoint:
-# need sqlalchemy model, pydantic model
-
-
-class UploadData(BaseModel):
-    transaction_id: UUID
-    user_id: int
-    product_id: int
-    timestamp: datetime
-    transaction_amount: Decimal
-
-
-Base = declarative_base()
-
-
-class DatabaseModel(Base):
-    __tablename__ = "transactions"
+#SQLModel is a combination of Pydantic and SQLAlchemy meaning we only need one schema
+class DatabaseModel(SQLModel):
     id = Column(Integer, primary_key=True, index=True)
     transaction_id = Column(String, unique=True, index=True)
     user_id = Column(Integer, index=True)
