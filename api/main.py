@@ -24,9 +24,20 @@ async def lifespan(app: FastAPI):
 @app.get(
     "/summary/{user_id}?start_date={start_date}&end_date={end_date}",
     response_model=UploadData,
+    status_code=200,
 )
-async def read_root():
-    return {"Hello": "World"}
+async def summarise_data():
+    try:
+        return {"message": "Successfully summarised data."}
+    # this exception will need improvement
+    except Exception as e:
+        print("---Detailed error traceback---")
+        traceback.print_exc()
+        print("---End of traceback---")
+        raise HTTPException(
+            status_code=500,
+            detail=f"An error occurred while summarising the data: {str(e)}",
+        )
 
 
 # begin with this endpoint
