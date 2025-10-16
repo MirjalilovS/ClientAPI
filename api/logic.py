@@ -1,6 +1,7 @@
 import csv
 from . import models
 from sqlmodel import Session, select, func
+from . import exceptions
 
 
 def process_csv(db: Session, file) -> int:
@@ -40,7 +41,9 @@ def calc_summary_stats(
     result = db.exec(statement).one_or_none()
 
     if not result or result[0] is None:
-        return None
+        raise exceptions.NoTransactionsFoundError(
+            "No transactions found for the given user and/or date range."
+        )
 
     max_amount, min_amount, mean_amount, total_amount, transaction_count = result
     summary = models.SummaryData(

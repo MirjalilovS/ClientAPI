@@ -45,8 +45,7 @@ def client_fixture(session: Session):
 
 
 def test_summary_uid_only(client: TestClient, session: Session):
-    # placeholder request, will be updated later
-
+    # The test data for the two test classes in this module are different
     test_data = [
         {
             "transaction_id": "95494198-1b28-4b68-9fe1-48da933d0104",
@@ -125,19 +124,13 @@ def test_summary_uid_only(client: TestClient, session: Session):
         session.add(transaction)
     session.commit()
 
-    statement = select(UploadData).where(UploadData.user_id == 479)
-    results = session.exec(statement).all()
-    print(f"SANITY CHECK: Found {len(results)} records for user 479 in the test DB.")
-    assert len(results) > 0
-
     response = client.get("/summary/479")
-    print(response.json())
     assert response.status_code == 200
     data = response.json()
 
-    assert data["max_amount"] == 496.82
-    assert data["min_amount"] == 496.82
-    assert data["mean_amount"] == 496.82
+    assert data["max_amount"] == "496.82"
+    assert data["min_amount"] == "496.82"
+    assert data["mean_amount"] == "496.82"
 
     response = client.get("/summary/999")
 
@@ -223,8 +216,6 @@ def test_summary_with_dates(client: TestClient, session: Session):
         session.add(transaction)
     session.commit()
 
-
-# I can easily finish this before lunch, then we can go eat and then come back and lock in for a final stretch
 
 # I need to test the following cases
 # User ID: Valid and Invalid

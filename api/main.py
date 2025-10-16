@@ -1,5 +1,5 @@
 from typing import Union, Annotated
-from . import models
+from . import models, exceptions
 from datetime import date, datetime
 from .models import UploadData, SummaryData
 from fastapi import FastAPI, UploadFile, File, HTTPException, Query
@@ -33,25 +33,22 @@ async def summarise_data(
     start_date: Annotated[date | None, Query()] = None,
     end_date: Annotated[date | None, Query()] = None,
 ):
+    if start_date and end_date and start_date > end_date:
+        raise exceptions.InvalidDateRange(
+            status_code=400,
+            detail="Invalid date range: start_date cannot be after end_date.",
+        )
+
     try:
         summary = calc_summary_stats(
             db=db, user_id=user_id, start_date=start_date, end_date=end_date
         )
-        if not summary:
-            raise HTTPException(
-                status_code=404,
-                detail="No transactions found for the given user and date range.",
-            )
-        return summary
-    # this exception will need improvement
-    except Exception as e:
-        print("---Detailed error traceback---")
-        traceback.print_exc()
-        print("---End of traceback---")
+    except exceptions.NoTransactionsFoundError as e:
         raise HTTPException(
-            status_code=500,
-            detail=f"An error occurred while summarising the data: {str(e)}",
+            status_code=404,
+            detail=str(e),
         )
+    return summary
 
 
 # begin with this endpoint
