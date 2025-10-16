@@ -44,7 +44,7 @@ def client_fixture(session: Session):
 
 
 def test_upload(client: TestClient):
-    file_path = os.path.join(os.path.dirname(__file__), "dummy_transactions_mid.csv")
+    file_path = os.path.join(os.path.dirname(__file__), "dummy_transactions.csv")
 
     with open(file_path, "rb") as f:
         response = client.post(

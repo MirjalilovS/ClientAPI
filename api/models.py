@@ -14,3 +14,12 @@ class UploadData(SQLModel, table=True):
     product_id: int
     timestamp: datetime
     transaction_amount: Decimal = Field(max_digits=10, decimal_places=2)
+
+
+class SummaryData(BaseModel):
+    user_id: int
+    total_amount: Decimal
+    average_amount: Decimal
+    transaction_count: int
+    start_date: datetime = Field(default=None)
+    end_date: datetime = Field(default=None)
