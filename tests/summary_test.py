@@ -216,6 +216,18 @@ def test_summary_with_dates(client: TestClient, session: Session):
         session.add(transaction)
     session.commit()
 
+    response = client.get("/summary/622?start_date=2024-11-03&end_date=2025-12-31")
+    assert response.status_code == 200
+    data = response.json()
+
+    assert data["max_amount"] == "496.82"
+    assert data["min_amount"] == "17.32"
+    assert data["mean_amount"] == "291.85"
+
+    response = client.get("/summary/999")
+
+    assert response.status_code == 404
+
 
 # I need to test the following cases
 # User ID: Valid and Invalid

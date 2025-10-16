@@ -30,8 +30,8 @@ async def lifespan(app: FastAPI):
 async def summarise_data(
     db: SessionDep,
     user_id: int,
-    start_date: Annotated[date | None, Query()] = None,
-    end_date: Annotated[date | None, Query()] = None,
+    start_date: Annotated[datetime | None, Query()] = None,
+    end_date: Annotated[datetime | None, Query()] = None,
 ):
     if start_date and end_date and start_date > end_date:
         raise exceptions.InvalidDateRange(

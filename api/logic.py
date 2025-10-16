@@ -2,6 +2,7 @@ import csv
 from . import models
 from sqlmodel import Session, select, func
 from . import exceptions
+from datetime import timedelta
 
 
 def process_csv(db: Session, file) -> int:
@@ -34,9 +35,10 @@ def calc_summary_stats(
     ).where(models.UploadData.user_id == user_id)
 
     if start_date:
-        query = query.filter(models.UploadData.timestamp >= start_date)
+        statement = statement.where(models.UploadData.timestamp >= start_date)
     if end_date:
-        query = query.filter(models.UploadData.timestamp <= end_date)
+        end_date = end_date + timedelta(days=1)
+        statement = statement.where(models.UploadData.timestamp < end_date)
 
     result = db.exec(statement).one_or_none()
 
@@ -46,12 +48,13 @@ def calc_summary_stats(
         )
 
     max_amount, min_amount, mean_amount, total_amount, transaction_count = result
+    rounded_mean = round(float(mean_amount), 2)
     summary = models.SummaryData(
         user_id=user_id,
         total_amount=total_amount,
         max_amount=max_amount,
         min_amount=min_amount,
-        mean_amount=mean_amount,
+        mean_amount=rounded_mean,
         transaction_count=transaction_count,
     )
     return summary
