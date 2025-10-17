@@ -20,7 +20,7 @@ This project is built using the following stacky.
     * **HTTPX:** A fully featured HTTP client used within `TestClient` to make requests to the API during tests.
 
 * **Development & Code Quality:**
-    * **Black:** An uncompromising code formatter to ensure consistent style.
+    * **Black:** A code formatter used to ensure consistent style.
     * **pre-commit:** Used to manage and run pre-commit hooks that run the Black formatter prior to commits.
     * **Faker:** A library for generating fake data, used to create the sample `dummy_transactions.csv` file but not used in the main logic.
 
@@ -36,7 +36,7 @@ The setup assumes that you are using a Linux system or WSL. To get the latest de
 git clone git@github.com:MirjalilovS/ClientAPI.git
 ```
 
-To setup the project please finput the following commands in the terminal:
+To setup the project please input the following commands in the terminal:
 
 ```bash
 python3 -m venv venv
