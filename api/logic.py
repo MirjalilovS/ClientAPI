@@ -3,24 +3,45 @@ from . import models
 from sqlmodel import Session, select, func
 from . import exceptions
 from datetime import timedelta
+from pydantic import ValidationError
+import io
+
+BATCH_SIZE = 1000
 
 
 def process_csv(db: Session, file) -> int:
     counter = 0
-    reader = csv.DictReader(file.read().decode("utf-8").splitlines())
-    for row in reader:
-        print("Processing row:", row)
-        try:
+    text_stream = io.TextIOWrapper(file, encoding="utf-8")
+    reader = csv.DictReader(text_stream)
+    try:
+        for row in reader:
+            # Create a model instance from the row
             transaction_data = models.UploadData.model_validate(row)
+
+            # Add the object to the database session
             db.add(transaction_data)
             counter += 1
-        except Exception as e:
-            print(f"Error processing row {row}: {e}")
-            raise
 
-    db.commit()
+            # 2. COMMIT in batches to keep memory usage low and transactions small
+            if counter % BATCH_SIZE == 0:
+                db.commit()
+                print(f"Committed batch of {BATCH_SIZE} transactions. Total: {counter}")
 
-    return counter
+        # 3. Commit any remaining transactions after the loop
+        db.commit()
+        print(f"Committed final batch. Total processed: {counter}")
+
+        return counter
+    except ValidationError as e:
+        db.rollback()  # Roll back the current batch if an error occurs
+        raise exceptions.CSVProcessingError(
+            f"Invalid data in CSV at row ~{counter + 1}: {e}"
+        )
+    except Exception as e:
+        db.rollback()
+        raise exceptions.CSVProcessingError(
+            f"An unexpected error occurred at row ~{counter + 1}: {e}"
+        )
 
 
 def calc_summary_stats(

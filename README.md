@@ -91,7 +91,7 @@ transaction_id,user_id,product_id,timestamp,transaction_amount
 ```
 
 * **Responses:**
-    * **201 CREATED (Success):** A JSON object confirming the number of processed transactions.
+    * **201 Created (Success):** A JSON object confirming the number of processed transactions.
     ```json
     {
         "message": "Successfully uploaded and processed 10 transactions."
@@ -164,15 +164,36 @@ The application follows a packaged architecture.
 
 **`exceptions.py`:** Contains custom exception classes (e.g., `NoTransactionsFoundError`). This allows the application to handle specific error scenarios gracefully and return meaningful HTTP error codes and messages to the client.
 
+### System Diagrams
+
+#### Component Diagram
+This diagram shows the high-level structure of the application.
+
+![Component Diagram](diagrams/component.png)
+
+#### Sequence Diagrams
+These diagrams illustrate the flow of requests through the system for each endpoint.
+
+**Upload Sequence:**
+![Upload Sequence](diagrams/upload.png)
+
+**Summary Sequence:**
+![Summary Sequence](diagrams/summary.png)
+
 ---
 
 ### Key Design Decisions
 **Framework Choice (FastAPI):** FastAPI was selected for its high performance, native async support, and automatic generation of interactive API documentation (via Swagger UI), which is invaluable for development and testing.
 
-**ORM and Validation (SQLModel):** SQLModel was chosen because it elegantly combines the functionality of Pydantic and SQLAlchemy. This allows us to define a single class that serves as both a data validation schema for the API and an ORM model for the database, reducing code duplication and potential for errors.
+**ORM and Validation (SQLModel):** SQLModel was chosen because it elegantly combines the functionality of Pydantic and SQLAlchemy. It was created with FastAPI in mind and allows us to use a single class that serves as both a data validation schema and an ORM model for the data base.
 
 **Database (SQLite):** For simplicity and ease of setup, a serverless SQLite database is used. This removes the need for a separate database server, making the application self-contained and easy to run locally. The database is created on application startup.
 
-**CSV Processing Strategy:** To handle potentially very large CSV files without consuming excessive memory, the file is processed in a stream-like fashion, row by row. Data is validated and added to the database session in a loop, with a single `db.commit()` call at the end to ensure the entire upload is atomic (either all rows are saved, or none are).
+**CSV Processing Strategy:** To handle potentially very large CSV files without consuming excessive memory, the file is processed in a stream-like fashion, row by row. Data is validated and added to the database session in a loop, with a single `db.commit()` call at the end to ensure the entire upload is atomic (either all rows are saved, or none are). However, due to the limitations of the SQLite, we will need to migrate the project to a better database for greater efficiency.
 
-**Centralised Business Logic:** Instead of splitting logic into a separate repository layer, all business and data access logic resides in `logic.py`. This is a pragmatic choice to maintain simplicity. If the application's complexity were to grow significantly, this module could be refactored to introduce a formal repository pattern.
+**Centralised Business Logic:** Instead of splitting logic into a separate repository layer, all business and data access logic resides in `logic.py`. This is a pragmatic choice to maintain simplicity.
+
+
+### Future Improvements
+
+**Efficiency:** Currently there are severe efficiency issues when testing with 1,000,000 entry CSV's. The `upload_test.py` takes around 5 minutes to fully run. Although it passes this is quite slow. I think it is due to using SQLite which due to being a local database stored on the disk loses efficiency compared to using PostgreSQL. This along with the combination of using WSL leads to the slow runtimes. I think the next logical step is upgrading this to PostgreSQL before adding any other functionalities.
