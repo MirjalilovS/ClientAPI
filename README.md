@@ -59,7 +59,7 @@ pytest
 
 You can run tests in a specific module by running the following command:
 ```bash
-pytest tests/chosen_test.py"
+pytest tests/chosen_test.py
 ```
 
 Finally, you can run the app through the following command:
@@ -138,14 +138,14 @@ The application follows a packaged architecture.
 ```markdown
 .
 ├── api/  
-│   ├── \_\_init\_\_.py  
+│   ├── __init__.py  
 │   ├── main.py          # Entry point, routing, high-level exceptions  
 │   ├── logic.py         # Core business logic and data processing  
 │   ├── models.py        # SQLModel table models and API schemas  
 │   ├── database.py      # Database engine, session management  
 │   └── exceptions.py    # Custom exception classes  
 ├── tests/               # Unit and integration tests
-│   ├── \_\_init\_\_.py
+│   ├── __init__.py
 │   ├── api_test.py           # Contains all transactions
 │   ├── dummy_transaction.csv # Used in upload_test.py to test efficiency
 │   ├── upload_test.py        # Test that takes in sample CSV file. Can be used to test efficiency of upload endpoint           
