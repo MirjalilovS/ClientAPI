@@ -67,7 +67,85 @@ uvicorn api.main:app --reload
 Then open https://127.0.0.1:8000/docs for the Swagger UI interactive documentation.
 
 ## API Endpoints
-Explanation of the endpoints
+This section provides details on the available API endpoints.
+
+### Upload Transactions
+Uploads a CSV file containing transaction data to the database.
+
+- **URL**: `/upload`
+- **Method**: `POST`
+- **Request Body**: `multipart/form-data`
+  - **key**: `file`
+  - **value**: The `.csv` file to be uploaded.
+
+#### CSV File Format:
+The CSV file must contain the following headers: `transaction_id`, `user_id`, `product_id`, `timestamp`, `transaction_amount`.
+
+```csv
+transaction_id,user_id,product_id,timestamp,transaction_amount
+95494198-1b28-4b68-9fe1-48da933d0104,622,465,2024-11-03 19:17:50.813466,424.19
+```
+
+Success Response:  
+Code: 201 Created
+
+Content: A JSON object confirming the number of processed transactions.
+
+```json
+{
+  "message": "Successfully uploaded and processed 10 transactions."
+}
+```
+
+Error Responses:  
+Code: 400 Bad Request
+
+Reason: The uploaded file is not a .csv file.
+
+Code: 500 Internal Server Error
+
+Reason: An unexpected error occurred during file processing (e.g., a row is missing data or has an invalid format).
+
+---
+
+### Get User Summary
+Retrieves summary statistics for a specific user's transactions, with an optional date range filter.
+
+- **URL**: `/summary/{user_id}`
+- **Method**: `GET`
+
+**URL Parameters:**
+- `user_id` (required): The integer ID of the user.
+
+**Query Parameters:**
+- `start_date` (optional): The start of the date range (inclusive). Format: `YYYY-MM-DDTHH:MM:SS`.
+- `end_date` (optional): The end of the date range (inclusive). Format: `YYYY-MM-DDTHH:MM:SS`.
+
+**Success Response:**  
+Code: 200 OK
+
+Content: A JSON object containing the summary statistics.
+
+```json
+{
+  "user_id": 1,
+  "total_amount": 5430.50,
+  "max_amount": 899.99,
+  "min_amount": 10.25,
+  "mean_amount": 181.02,
+  "transaction_count": 30
+}
+```
+
+**Error Responses:**  
+Code: 400 Bad Request
+
+Reason: The provided start_date is later than the end_date.
+
+Code: 404 Not Found
+
+Reason: No transactions were found for the given user_id and date range.
+
 ## Architecture and Design Decisions
 
 The application follows a packaged architecture. 
