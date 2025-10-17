@@ -1,30 +1,41 @@
 @startuml SummarySequence
+!theme spacelab
 
 title Sequence: GET /summary/{user_id}
 
 actor Client
-participant Router
-participant Service
-participant Repository
-database Database
+participant "main.py\n(Router)" as Router
+participant "logic.py\n(Business Logic)" as Logic
+database "Database" as DB
 
 Client -> Router: GET /summary/123?start_date=...&end_date=...
 activate Router
 
-Router -> Service: get_user_summary(user_id, dates)
-activate Service
+alt Invalid Date Range
+    Router -> Router: Validate dates (start_date > end_date)
+    Router --> Client: HTTP 400 Bad Request
+else Valid Request
+    Router -> Logic: calc_summary_stats(db, user_id, dates)
+    activate Logic
 
-Service -> Repository: fetch_summary_stats(user_id, dates)
-activate Repository
+    Logic -> DB: SELECT MAX(...), MIN(...), AVG(...) etc.\nFROM transactions WHERE user_id = 123 AND ...
+    activate DB
+    DB --> Logic: Return summary statistics
+    deactivate DB
 
-Repository -> Database: SELECT MAX(...), MIN(...), MEAN(...) FROM transactions WHERE ...
-Repository <-- Database: Return summary results
-deactivate Repository
+    alt No Transactions Found
+        Logic -> Logic: Check if results are empty
+        Logic -->> Router: raise NoTransactionsFoundError
+        Router --> Client: HTTP 404 Not Found
+    else Transactions Found
+        Logic -> Logic: Create SummaryData object
+        Logic --> Router: Return SummaryData object
+        deactivate Logic
 
-Service --> Router: Return summary data
-deactivate Service
+        Router --> Client: HTTP 200 OK with JSON body
+    end
+end
 
-Router --> Client: HTTP 200 OK with JSON body
 deactivate Router
 
 @enduml

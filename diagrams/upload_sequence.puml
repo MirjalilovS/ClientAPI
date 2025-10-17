@@ -1,34 +1,44 @@
 @startuml UploadSequence
+!theme spacelab
 
 title Sequence: POST /upload
 
 actor Client
-participant Router
-participant Service
-participant Repository
-database Database
+participant "main.py\n(Router)" as Router
+participant "logic.py\n(Business Logic)" as Logic
+database "Database" as DB
 
 Client -> Router: POST /upload with CSV file
 activate Router
 
-Router -> Service: process_uploaded_file(file_stream)
-activate Service
+alt Invalid File Type
+    Router -> Router: Check if filename ends with ".csv"
+    Router --> Client: HTTP 400 Bad Request
+else Valid File Type
+    Router -> Logic: process_csv(db, file)
+    activate Logic
 
-' The service layer processes the file row-by-row
-loop for each transaction in file
-    Service -> Repository: save_transaction(transaction_data)
-    activate Repository
+    Logic -> Logic: Read and decode CSV data
+    loop for each row in CSV
+        Logic -> Logic: Validate row with UploadData model
+        Logic -> Logic: Add validated object to session
+    end
 
-    ' The repository layer performs the database insertion
-    Repository -> Database: INSERT INTO transactions (...)
-    Repository <-- Database: Success
-    deactivate Repository
+    alt Processing Error (e.g., validation fails)
+        Logic -->> Router: raise Exception
+        Router --> Client: HTTP 500 Internal Server Error
+    else Successful Processing
+        Logic -> DB: COMMIT transaction
+        activate DB
+        DB --> Logic: Confirm commit
+        deactivate DB
+        Logic --> Router: Return processed_count
+        deactivate Logic
+
+        Router -> Router: Create success message
+        Router --> Client: HTTP 201 Created with JSON body
+    end
 end
-
-Service --> Router: Return success message
-deactivate Service
-
-Router --> Client: HTTP 201 Created
 deactivate Router
 
 @enduml

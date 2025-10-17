@@ -1,20 +1,31 @@
-@startuml ComponentDiagram
+@startuml ProjectDiagram
+!theme spacelab
 
-title E-commerce API - Component Architecture
+title E-Commerce API - Component Architecture
 
-actor Client
+actor Client as client
 
-package "FastAPI Application" {
-  component [Router Layer] as Router
-  component [Service Layer] as Service
-  component [Repo. Layer] as Repo
+package "API Package" {
+  component "main.py\n(FastAPI Router)" as main
+  component "logic.py\n(Business Logic & Data Access)" as logic
+  component "models.py\n(Data Schemas)" as models
+  component "database.py\n(DB Session Management)" as database
+  component "exceptions.py\n(Custom Errors)" as exceptions
 }
 
-database "SQLite Database" as DB
+database "SQLite Database" as db
 
-Client -right-> Router : Makes HTTP API Calls
-Router ..down.> Service : Calls Business Logic
-Service ..down.> Repo : Uses Repository for Data Access
-Repo .right.> DB : Reads/Writes Data
+client -right-> main : HTTP Requests\n(upload, summary)
+
+main ..> logic : Calls functions\n(process_csv, calc_summary_stats)
+main ..> models : Uses for request/response validation
+main ..> exceptions : Handles specific exceptions
+
+logic ..> models : Uses for database operations
+logic ..> database : Gets database session
+logic ..> exceptions : Raises exceptions
+logic .right.> db : Executes queries via ORM
+
+database -left.> db : Creates engine & tables
 
 @enduml

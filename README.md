@@ -69,6 +69,32 @@ Then open https://127.0.0.1:8000/docs for the Swagger UI interactive documentati
 ## API Endpoints
 Explanation of the endpoints
 ## Architecture and Design Decisions
-Will insert the .puml diagrams here after fixing them up, and explain the package structure etc.
+
+The application follows a packaged architecture. 
+
+### Module Breakdown
+**main.py:** The entry point and routing layer. It uses FastAPI to define the API endpoints (`/upload`, `/summary/{user_id}`), handle HTTP requests and responses, and manage high-level exceptions.
+
+**logic.py:** The core service module. It contains all business logic, including CSV file processing and the calculation of summary statistics. It interacts directly with the database using SQLModel to execute queries.
+
+**models.py:** Defines all data structures and schemas using SQLModel. This includes models for database tables (e.g., `UploadData`) and schemas for API responses (e.g., `SummaryData`), ensuring data validation and consistency.
+
+**database.py:** Responsible for database configuration. It handles the creation of the SQLite engine, session management (`SessionDep`), and initial table creation.
+
+**exceptions.py:** Contains custom exception classes (e.g., `NoTransactionsFoundError`). This allows the application to handle specific error scenarios gracefully and return meaningful HTTP error codes and messages to the client.
+
+---
+
+### Key Design Decisions
+**Framework Choice (FastAPI):** FastAPI was selected for its high performance, native async support, and automatic generation of interactive API documentation (via Swagger UI), which is invaluable for development and testing.
+
+**ORM and Validation (SQLModel):** SQLModel was chosen because it elegantly combines the functionality of Pydantic and SQLAlchemy. This allows us to define a single class that serves as both a data validation schema for the API and an ORM model for the database, reducing code duplication and potential for errors.
+
+**Database (SQLite):** For simplicity and ease of setup, a serverless SQLite database is used. This removes the need for a separate database server, making the application self-contained and easy to run locally. The database is created on application startup.
+
+**CSV Processing Strategy:** To handle potentially very large CSV files without consuming excessive memory, the file is processed in a stream-like fashion, row by row. Data is validated and added to the database session in a loop, with a single `db.commit()` call at the end to ensure the entire upload is atomic (either all rows are saved, or none are).
+
+**Centralised Business Logic:** Instead of splitting logic into a separate repository layer, all business and data access logic resides in `logic.py`. This is a pragmatic choice to maintain simplicity. If the application's complexity were to grow significantly, this module could be refactored to introduce a formal repository pattern.
+
 ## Features
 Features include: Upload and Validate CSV files, Calculate and retrieve summary statistics (min, max, mean) for a specific user within a date range. Handle up to 1 million transactions efficiently and comprehensive error handling and input validation
