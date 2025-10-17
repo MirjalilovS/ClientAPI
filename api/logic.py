@@ -15,25 +15,20 @@ def process_csv(db: Session, file) -> int:
     reader = csv.DictReader(text_stream)
     try:
         for row in reader:
-            # Create a model instance from the row
             transaction_data = models.UploadData.model_validate(row)
-
-            # Add the object to the database session
             db.add(transaction_data)
             counter += 1
 
-            # 2. COMMIT in batches to keep memory usage low and transactions small
             if counter % BATCH_SIZE == 0:
                 db.commit()
                 print(f"Committed batch of {BATCH_SIZE} transactions. Total: {counter}")
 
-        # 3. Commit any remaining transactions after the loop
         db.commit()
         print(f"Committed final batch. Total processed: {counter}")
 
         return counter
     except ValidationError as e:
-        db.rollback()  # Roll back the current batch if an error occurs
+        db.rollback()
         raise exceptions.CSVProcessingError(
             f"Invalid data in CSV at row ~{counter + 1}: {e}"
         )

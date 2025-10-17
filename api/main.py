@@ -9,7 +9,6 @@ from . import logic
 from .logic import process_csv, calc_summary_stats
 import traceback
 
-# this module is the router module
 app = FastAPI(
     title="E-Commerce Transaction API",
     description="An API to upload and summarize large datasets of e-commerce transactions.",
@@ -25,7 +24,6 @@ async def lifespan(app: FastAPI):
     print("INFO:     Application shutting down.")
 
 
-# finish with this one, response model is temporary
 @app.get(
     "/summary/{user_id}",
     response_model=SummaryData,
@@ -65,7 +63,6 @@ async def summarise_data(
     return summary
 
 
-# begin with this endpoint
 @app.post("/upload", status_code=201)
 async def upload_transactions(db: SessionDep, file: UploadFile = File(...)):
     """
