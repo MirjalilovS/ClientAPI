@@ -10,7 +10,11 @@ from .logic import process_csv, calc_summary_stats
 import traceback
 
 # this module is the router module
-app = FastAPI()
+app = FastAPI(
+    title="E-Commerce Transaction API",
+    description="An API to upload and summarize large datasets of e-commerce transactions.",
+    version="1.0.0",
+)
 
 
 @asynccontextmanager
@@ -33,6 +37,13 @@ async def summarise_data(
     start_date: Annotated[datetime | None, Query()] = None,
     end_date: Annotated[datetime | None, Query()] = None,
 ):
+    """
+    Retrieves summary statistics for a specific user, optionally filtered by a date range.
+
+    This endpoint calculates the maximum, minimum, mean, sum, and total count of
+    transaction amounts for the given `user_id`. If `start_date` and `end_date`
+    are provided, only transactions within that inclusive range are considered.
+    """
     try:
         if start_date and end_date and start_date > end_date:
             raise exceptions.InvalidDateRange(
@@ -57,6 +68,12 @@ async def summarise_data(
 # begin with this endpoint
 @app.post("/upload", status_code=201)
 async def upload_transactions(db: SessionDep, file: UploadFile = File(...)):
+    """
+    Uploads a CSV file with transaction data.
+
+    The file is processed row by row, validated, and saved to the database.
+    Returns a count of the successfully processed transactions.
+    """
     if not file.filename.endswith(".csv"):
         raise HTTPException(
             status_code=400, detail="Invalid file type. Please upload a CSV file."
