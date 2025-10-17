@@ -1,4 +1,4 @@
-#E-Commerce Transaction API
+# E-Commerce Transaction API
 
 This project is a RESTful API service developed in Python using the FastAPI framework. It has two endpoints /upload and /summary. The /upload endpoint accepts a CSV file upload and validates the file format before storing the data for processing in an SQLModel database. The /summary endpoint accepts a user ID and returns the summary statistics for the user including the maximum, minimum and mean transaction amount for that user. Optionally, the client can specify a start and end date in which transactions that will be included must lie in.
 
@@ -24,7 +24,7 @@ This project is built using the following stacky.
     * **pre-commit:** Used to manage and run pre-commit hooks that run the Black formatter prior to commits.
     * **Faker:** A library for generating fake data, used to create the sample `dummy_transactions.csv` file but not used in the main logic.
 
-##Installation, Setup and Testing
+## Installation, Setup and Testing
 
 The setup assumes that you are using a Linux system or WSL. To get the latest development version clone the repo using:
 
