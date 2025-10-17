@@ -14,6 +14,8 @@ engine = create_engine(
     echo=True,
 )
 
+# This test class will be used to test the /upload endpoint in terms of scalability and performance.
+
 
 @pytest.fixture(name="session")
 def session_fixture():

@@ -33,19 +33,22 @@ async def summarise_data(
     start_date: Annotated[datetime | None, Query()] = None,
     end_date: Annotated[datetime | None, Query()] = None,
 ):
-    if start_date and end_date and start_date > end_date:
-        raise exceptions.InvalidDateRange(
-            status_code=400,
-            detail="Invalid date range: start_date cannot be after end_date.",
-        )
-
     try:
+        if start_date and end_date and start_date > end_date:
+            raise exceptions.InvalidDateRange(
+                "Invalid date range: start_date cannot be after end_date.",
+            )
         summary = calc_summary_stats(
             db=db, user_id=user_id, start_date=start_date, end_date=end_date
         )
     except exceptions.NoTransactionsFoundError as e:
         raise HTTPException(
             status_code=404,
+            detail=str(e),
+        )
+    except exceptions.InvalidDateRange as e:
+        raise HTTPException(
+            status_code=400,
             detail=str(e),
         )
     return summary
