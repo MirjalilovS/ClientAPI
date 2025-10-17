@@ -55,7 +55,7 @@ def test_upload(client: TestClient):
 
     assert response.status_code == 201
     assert response.json() == {
-        "message": "Successfully uploaded and processed 10 transactions."
+        "message": "Successfully uploaded and processed 1000000 transactions."
     }
 
 

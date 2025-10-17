@@ -26,6 +26,10 @@ This project is built using the following stacky.
 
 ## Installation, Setup and Testing
 
+* **Prerequisites:**
+    * Python 3.12+
+    * Git
+
 The setup assumes that you are using a Linux system or WSL. To get the latest development version clone the repo using:
 
 ```bash
@@ -40,7 +44,7 @@ source venv/bin/activate
 pip install .
 ```
 
-Although somewhat optional, install the black formatter to run through pre-commits by inputting the following:
+(Recommended) Set up pre-commit hooks for code formatting:
 
 ```bash
 pip install pre-commit
@@ -86,25 +90,15 @@ transaction_id,user_id,product_id,timestamp,transaction_amount
 95494198-1b28-4b68-9fe1-48da933d0104,622,465,2024-11-03 19:17:50.813466,424.19
 ```
 
-#### Success Response:  
-Code: 201 Created
-
-Content: A JSON object confirming the number of processed transactions.
-
-```json
-{
-  "message": "Successfully uploaded and processed 10 transactions."
-}
-```
-
-#### Error Responses:  
-Code: 400 Bad Request
-
-Reason: The uploaded file is not a .csv file.
-
-Code: 500 Internal Server Error
-
-Reason: An unexpected error occurred during file processing (e.g., a row is missing data or has an invalid format).
+* **Responses:**
+    * **201 CREATED (Success):** A JSON object confirming the number of processed transactions.
+    ```json
+    {
+        "message": "Successfully uploaded and processed 10 transactions."
+    }
+    ```
+    * **400 Bad Request:** The uploaded file is not a .csv file.
+    * **500 Internal Servor Error:** An unexpected error occurred during file processing.
 
 ---
 
@@ -121,34 +115,43 @@ Retrieves summary statistics for a specific user's transactions, with an optiona
 - `start_date` (optional): The start of the date range (inclusive). Format: `YYYY-MM-DDTHH:MM:SS`.
 - `end_date` (optional): The end of the date range (inclusive). Format: `YYYY-MM-DDTHH:MM:SS`.
 
-**Success Response:**  
-Code: 200 OK
-
-Content: A JSON object containing the summary statistics.
-
-```json
-{
-  "user_id": 1,
-  "total_amount": 5430.50,
-  "max_amount": 899.99,
-  "min_amount": 10.25,
-  "mean_amount": 181.02,
-  "transaction_count": 30
-}
-```
-
-**Error Responses:**  
-Code: 400 Bad Request
-
-Reason: The provided start_date is later than the end_date.
-
-Code: 404 Not Found
-
-Reason: No transactions were found for the given user_id and date range.
+* **Responses:**
+    * **200 OK:** A JSON object containing the summary statistics.
+    ```json
+    {
+        "user_id": 1,
+        "total_amount": 5430.50,
+        "max_amount": 899.99,
+        "min_amount": 10.25,
+        "mean_amount": 181.02,
+        "transaction_count": 30
+    }
+    ```
+    * **400 Bad Request:** The provided start_date is later than the end_date.
+    * **404 Not Found:** No transactions were found for the given user_id and date range.
 
 ## Architecture and Design Decisions
 
 The application follows a packaged architecture. 
+
+### Project Structure
+```markdown
+.
+├── api/  
+│   ├── \_\_init\_\_.py  
+│   ├── main.py          # Entry point, routing, high-level exceptions  
+│   ├── logic.py         # Core business logic and data processing  
+│   ├── models.py        # SQLModel table models and API schemas  
+│   ├── database.py      # Database engine, session management  
+│   └── exceptions.py    # Custom exception classes  
+├── tests/               # Unit and integration tests
+│   ├── \_\_init\_\_.py
+│   ├── api_test.py           # Contains all transactions
+│   ├── dummy_transaction.csv # Used in upload_test.py to test efficiency
+│   ├── upload_test.py        # Test that takes in sample CSV file. Can be used to test efficiency of upload endpoint           
+├── pyproject.toml       # Project metadata and dependencies  
+└── ...
+```
 
 ### Module Breakdown
 **`main.py`:** The entry point and routing layer. It uses FastAPI to define the API endpoints (`/upload`, `/summary/{user_id}`), handle HTTP requests and responses, and manage high-level exceptions.
@@ -173,6 +176,3 @@ The application follows a packaged architecture.
 **CSV Processing Strategy:** To handle potentially very large CSV files without consuming excessive memory, the file is processed in a stream-like fashion, row by row. Data is validated and added to the database session in a loop, with a single `db.commit()` call at the end to ensure the entire upload is atomic (either all rows are saved, or none are).
 
 **Centralised Business Logic:** Instead of splitting logic into a separate repository layer, all business and data access logic resides in `logic.py`. This is a pragmatic choice to maintain simplicity. If the application's complexity were to grow significantly, this module could be refactored to introduce a formal repository pattern.
-
-## Features
-Features include: Upload and Validate CSV files, Calculate and retrieve summary statistics (min, max, mean) for a specific user within a date range. Handle up to 1 million transactions efficiently and comprehensive error handling and input validation
