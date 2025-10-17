@@ -162,7 +162,7 @@ The application follows a packaged architecture.
 
 **`database.py`:** Responsible for database configuration. It handles the creation of the SQLite engine, session management (`SessionDep`), and initial table creation.
 
-**`exceptions.py`:** Contains custom exception classes (e.g., `NoTransactionsFoundError`). This allows the application to handle specific error scenarios gracefully and return meaningful HTTP error codes and messages to the client.
+**`exceptions.py`:** Contains custom exception classes (e.g. `NoTransactionsFoundError`). This allows the application to handle specific error scenarios gracefully and return meaningful HTTP error codes and messages to the client.
 
 ### System Diagrams
 
