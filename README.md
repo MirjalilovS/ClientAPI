@@ -28,41 +28,41 @@ This project is built using the following stacky.
 
 The setup assumes that you are using a Linux system or WSL. To get the latest development version clone the repo using:
 
-'''bash
+```bash
 git clone git@github.com:MirjalilovS/ClientAPI.git
-'''
+```
 
 To setup the project please finput the following commands in the terminal:
 
-'''bash
+```bash
 python3 -m venv venv
 source venv/bin/activate
 pip install .
-'''
+```
 
 Although somewhat optional, install the black formatter to run through pre-commits by inputting the following:
 
-'''bash
+```bash
 pip install pre-commit
 pre-commit install
-'''
+```
 
 You can run all the unit tests through inputting the following command:
 
-'''bash
+```bash
 pytest
-'''
+```
 
 You can run tests in a specific module by running the following command:
-'''bash
+```bash
 pytest tests/chosen_test.py"
-'''
+```
 
 Finally, you can run the app through the following command:
 
-'''bash
+```bash
 uvicorn api.main:app --reload
-'''
+```
 
 Then open https://127.0.0.1:8000/docs for the Swagger UI interactive documentation.
 
