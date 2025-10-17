@@ -169,7 +169,7 @@ The application follows a packaged architecture.
 #### Component Diagram
 This diagram shows the high-level structure of the application.
 
-![Component Diagram](diagrams/component.png)
+![Component Diagram](diagrams/project.png)
 
 #### Sequence Diagrams
 These diagrams illustrate the flow of requests through the system for each endpoint.
