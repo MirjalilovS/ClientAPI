@@ -86,7 +86,7 @@ transaction_id,user_id,product_id,timestamp,transaction_amount
 95494198-1b28-4b68-9fe1-48da933d0104,622,465,2024-11-03 19:17:50.813466,424.19
 ```
 
-Success Response:  
+#### Success Response:  
 Code: 201 Created
 
 Content: A JSON object confirming the number of processed transactions.
@@ -97,7 +97,7 @@ Content: A JSON object confirming the number of processed transactions.
 }
 ```
 
-Error Responses:  
+#### Error Responses:  
 Code: 400 Bad Request
 
 Reason: The uploaded file is not a .csv file.
